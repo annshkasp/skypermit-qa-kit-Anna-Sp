@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "additionalDirectories": [
+      "C:\\GenAIHome\\skypermit"
+    ],
+    "allow": [
+      "Read(//c/GenAIHome/skypermit/**)",
+      "Bash(git *)",
+      "PowerShell(git *)"
+    ],
+    "deny": [
+      "Edit(//c/GenAIHome/skypermit/**)",
+      "Write(//c/GenAIHome/skypermit/**)",
+      "NotebookEdit(//c/GenAIHome/skypermit/**)",
+      "Bash(git -C *skypermit)",
+      "Bash(git -C *skypermit/*)",
+      "Bash(git -C *skypermit\\*)",
+      "PowerShell(git -C *skypermit)",
+      "PowerShell(git -C *skypermit/*)",
+      "PowerShell(git -C *skypermit\\*)",
+      "WebSearch",
+      "WebFetch"
+    ]
+  }
+}

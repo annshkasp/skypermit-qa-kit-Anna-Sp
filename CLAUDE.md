@@ -32,13 +32,16 @@ Every generated artifact must trace back to the doc and section it came from. If
 skypermit-qa-kit/
 ├── CLAUDE.md            # this file
 ├── README.md
-├── test-cases/          # generated test cases, one file per feature/area
+├── test-plan/           # one-page test plans (skill: one-page-test-plan)
+├── test-cases/          # low-level test cases, one file per case (skill: low-level-test-cases)
+│   ├── API/<module>/    # executed without a browser: HTTP requests, response and DB checks
+│   └── UI/<module>/     # executed in a browser: operator portal, reviewer queue
 └── .claude/
     └── skills/          # project-specific Claude skills for generating testware
         └── <skill-name>/SKILL.md
 ```
 
-- `test-cases/`: test cases grouped by feature or spec area, for example `test-cases/state-machine.md` or `test-cases/api-<resource>.md`. Each test case gives an ID, title, source reference (doc + section), preconditions, steps, expected result and priority.
+- `test-cases/`: one Markdown file per test case, split into `API/` and `UI/` and then by module, for example `test-cases/API/auth/AUTH-001-anonymous-register-valid-operator.md`. The title gives the ID and role(s). Each case has ID, Doc ref, Role(s), Summary, Precondition (optional), Steps and Expected result. The module map and conventions are in `.claude/skills/low-level-test-cases/SKILL.md`.
 - `.claude/skills/`: reusable skills that encode how this kit produces testware (formats, templates, conventions). Each skill lives in its own folder with a `SKILL.md`.
 
 ## Repository notes
