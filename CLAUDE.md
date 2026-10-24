@@ -1,52 +1,94 @@
-# CLAUDE.md
+# SkyPermit QA kit
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This repository is the QA kit for the **SkyPermit** project. Claude uses it to generate testware (test plans, test cases and checklists) from the SkyPermit specification docs, and to verify test cases against those docs and the code. This repo contains no application code.
 
-## Goal
+- **System under test:** `../skypermit` (`D:\Education\ISTQB\TestGenAI\Workshop\skypermit`), a Next.js + Supabase app with Vitest tests. It is **read-only** (see the hard rule below).
+- **Source of truth for requirements:** `../skypermit/docs/`.
 
-This repository is the QA kit for the **SkyPermit** project. Claude is used here to generate testware, such as test plans, test cases and checklists, from the SkyPermit specification documents.
+## Read before writing testware
 
-- **System under test:** `C:\GenAIHome\skypermit` (a Next.js + Supabase app with Vitest tests).
-- **Source of truth for requirements:** `C:\GenAIHome\skypermit\docs\`
-  - `01-data-model.md`
-  - `02-state-machine.md`
-  - `03-api-contract.md`
-  - `04-frontend-spec.md`
-  - `05-open-questions.md`
-  - `06-business-rules.md`
-  - `07-clarifications.md`
-  - `08-uml-diagrams.md`
+Read these in order. Start with the app's own entry point, then the docs:
 
-Every generated artifact must trace back to the doc and section it came from. If the docs are ambiguous or contradict each other, report it as an open question (see `05-open-questions.md` and `07-clarifications.md`). Do not invent behavior.
+1. `../skypermit/CLAUDE.md`: entry point for the app: stack, gate implementation status, conventions.
+2. `docs/01-data-model.md`: the seven entities, their fields, enums, derived values and time handling.
+3. `docs/02-state-machine.md`: the seven flight-request states and the legal transitions. Any other transition must return `409`.
+4. `docs/03-api-contract.md`: all endpoints under `/api/v1`, authentication and authorisation, error semantics (including the `422` body: `failing_gate`, `rule_reference`, `message`) and the gate pipeline shared by `submit` and `validate`.
+5. `docs/04-frontend-spec.md`: the operator portal and reviewer queue, and the **`data-testid` contract**. Every interactive element has a stable `data-testid`, which is the primary hook for UI/E2E tests.
+6. `docs/05-open-questions.md`: the **canonical status** of every open or resolved question. Check it before treating any behavior as known.
+7. `docs/06-business-rules.md`: the gate logic (`PILOT`, `AIRCRAFT`, `ZONE`, `TIME_WINDOW`), thresholds, zone catalogue, cancellation deadline and `rule_reference` values.
+8. `docs/07-clarifications.md`: answers from the business rules owner. Where it conflicts with `06`, **`07` governs**.
+9. `docs/08-uml-diagrams.md`: Mermaid diagrams generated from `01` and `02`. Use it for orientation only; cite `01`/`02` instead.
 
-## HARD RULE: `C:\GenAIHome\skypermit` is read-only
+**Doc precedence:** `05` is the canonical open/resolved status; `07` overrides `06`; the specific docs (`01`–`04`) beat the diagrams in `08`.
 
-- **Never** create, edit, move, rename or delete any file under `C:\GenAIHome\skypermit`.
+## Key facts worth not re-deriving
+
+- Gates evaluate in a fixed order, `PILOT → AIRCRAFT → ZONE → TIME_WINDOW`, and stop at the first failure. A `422` always names the *first* failing gate, not every failing gate.
+- The weight-band check fails the `AIRCRAFT` gate, not `ZONE` (`07 §1`).
+- `POST /api/v1/flight-requests/{id}/validate` runs the same gate pipeline as `submit` but never changes state, so tests can call it repeatedly as a read-only probe of gate outcomes.
+- Operators authenticate via real Supabase Auth (session cookie). Reviewers are identified by a static `X-Reviewer-Id` header, not a login. A test acting as reviewer never needs a session, and a test acting as operator never sends `X-Reviewer-Id`.
+- `data-testid` values are a stable contract. If a selector seems to be missing in the running app, report it as a bug against `skypermit`; don't fall back to text or CSS selectors.
+- The operator portal's pickers (pilot, aircraft, zone) are deliberately **not** pre-filtered by business rules. A test can select an invalid combination and must expect the failure at validate/submit time, not at selection time.
+
+## Traceability and open questions
+
+- Every generated artifact must trace back to the doc and section it came from (for example `03 §Error semantics`). Do not invent behavior.
+- If the docs are silent, ambiguous or contradict each other, don't guess an expected result. Raise it as an open question instead:
+  - in a test plan, in its **Open questions** section;
+  - for test cases, in the reply under **Blocked**, naming the open question in `05` or the conflicting doc sections.
+- Never add open questions to the `skypermit` docs themselves.
+
+## HARD RULE: `../skypermit` is read-only
+
+- **Never** create, edit, move, rename or delete any file under `D:\Education\ISTQB\TestGenAI\Workshop\skypermit`.
 - **Never** run commands there that change state: no `git` commits, checkouts, stashes or resets, no `npm install` or builds, no migrations, no formatters, no generators.
 - Reading, searching and listing files there is allowed.
 - All output goes into this repository (`skypermit-qa-kit`).
+
+`.claude/settings.json` enforces this: it grants read access to `../skypermit`, denies `Edit`/`Write`/`NotebookEdit` there, and denies `git -C` against it. Keep the paths in `settings.json`, the skills and the agent in sync with this file if the app moves.
+
+## How the work is done
+
+| Task | Use |
+|---|---|
+| Test plan, test strategy, scope, risks, entry/exit criteria | skill `one-page-test-plan` → `test-plan/` |
+| Write, add or extend test cases | skill `low-level-test-cases` → `test-cases/API/<module>/` or `test-cases/UI/<module>/` |
+| Verify a test case against the docs and the code | agent `test-case-verifier` |
+
+- Run `test-case-verifier` **only when the user asks** to verify, validate or check a test case. Don't run it automatically after generating test cases.
+- The verifier checks one test case per run (give it the ID, e.g. `AUTH-004`) and is read-only. Its report goes into the reply, not into a file. For several cases, run one verifier per case.
 
 ## Directory structure
 
 ```
 skypermit-qa-kit/
-├── CLAUDE.md            # this file
-├── README.md
-├── test-plan/           # one-page test plans (skill: one-page-test-plan)
-├── test-cases/          # low-level test cases, one file per case (skill: low-level-test-cases)
-│   ├── API/<module>/    # executed without a browser: HTTP requests, response and DB checks
-│   └── UI/<module>/     # executed in a browser: operator portal, reviewer queue
+├── CLAUDE.md                  # this file
+├── README.md                  # UTF-16 LE, see Repository notes
+├── test-plan/                 # one-page test plans (skill: one-page-test-plan)
+├── test-cases/                # low-level test cases, one file per case (skill: low-level-test-cases)
+│   ├── API/<module>/          # executed without a browser: HTTP requests, response and DB checks
+│   └── UI/<module>/           # executed in a browser: operator portal, reviewer queue
 └── .claude/
-    └── skills/          # project-specific Claude skills for generating testware
-        └── <skill-name>/SKILL.md
+    ├── settings.json          # permissions: read-only access to ../skypermit, no web access
+    ├── agents/
+    │   └── test-case-verifier.md
+    └── skills/
+        ├── low-level-test-cases/SKILL.md   # module map, naming, template (+ evals/)
+        └── one-page-test-plan/SKILL.md
 ```
 
-- `test-cases/`: one Markdown file per test case, split into `API/` and `UI/` and then by module, for example `test-cases/API/auth/AUTH-001-anonymous-register-valid-operator.md`. The title gives the ID and role(s). Each case has ID, Doc ref, Role(s), Summary, Precondition (optional), Steps and Expected result. The module map and conventions are in `.claude/skills/low-level-test-cases/SKILL.md`.
-- `.claude/skills/`: reusable skills that encode how this kit produces testware (formats, templates, conventions). Each skill lives in its own folder with a `SKILL.md`.
+### Test case conventions
+
+- One Markdown file per case: `test-cases/<API|UI>/<module>/<ID>-<role-slug>-<summary-slug>.md`, for example `test-cases/API/auth/AUTH-001-operator-register-valid-operator.md`.
+- Title: `# <ID> · <Role(s)> · <Summary>`, for example `# AUTH-001 · Operator · Register operator with valid data creates profile at L1 and signs in`.
+- Fields, in order: ID, Doc ref, Role(s), Summary, Precondition (optional), Steps, Expected result.
+- IDs are `<PREFIX>-<NNN>`. Before writing, list the module folder and continue from the highest existing number. Never reuse or renumber an existing ID.
+- The module map (folder names and ID prefixes) is in `.claude/skills/low-level-test-cases/SKILL.md`.
 
 ## Repository notes
 
-- Remote: `git@github.com:annshkasp/skypermit-qa-kit-Anna-Sp.git`, default branch `main`.
-- `README.md` is saved as UTF-16 LE with a BOM, probably from PowerShell redirection. `cat`, `grep` and most tools show it as spaced-out or garbled text. Convert it to UTF-8 before editing it with text tools.
-- Environment: Windows. `jq`, Python and Node are not installed, so scripts can't rely on them.
-- When writing files from PowerShell, use `-Encoding utf8` so they don't end up as UTF-16.
+- Remote: `git@github-personal:annshkasp/skypermit-qa-kit-Anna-Sp.git`. `github-personal` is an SSH host alias from `~/.ssh/config` for the personal GitHub account. Default branch: `main`.
+- Commit or push only when the user asks.
+- Write all files as UTF-8. From PowerShell, pass `-Encoding utf8` so files don't end up as UTF-16.
+- `README.md` is saved as UTF-16 LE with CRLF line endings, so `cat`, `grep` and most tools show it as spaced-out text. Convert it to UTF-8 before editing it.
+- Environment: Windows, Git Bash and PowerShell. Node (v22) and `git` are available. `jq` is not installed, and `python` is only the Microsoft Store stub, so scripts can't rely on either.

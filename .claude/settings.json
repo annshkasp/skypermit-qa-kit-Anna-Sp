@@ -2,17 +2,17 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "additionalDirectories": [
-      "C:\\GenAIHome\\skypermit"
+      "D:\\Education\\ISTQB\\TestGenAI\\Workshop\\skypermit"
     ],
     "allow": [
-      "Read(//c/GenAIHome/skypermit/**)",
+      "Read(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
       "Bash(git *)",
       "PowerShell(git *)"
     ],
     "deny": [
-      "Edit(//c/GenAIHome/skypermit/**)",
-      "Write(//c/GenAIHome/skypermit/**)",
-      "NotebookEdit(//c/GenAIHome/skypermit/**)",
+      "Edit(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
+      "Write(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
+      "NotebookEdit(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
       "Bash(git -C *skypermit)",
       "Bash(git -C *skypermit/*)",
       "Bash(git -C *skypermit\\*)",

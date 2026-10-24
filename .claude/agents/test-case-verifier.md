@@ -1,6 +1,6 @@
 ---
 name: test-case-verifier
-description: Read-only verifier for SkyPermit test cases. Given a test case ID (e.g. AUTH-004) or file name, finds it under test-cases/, checks every Step and Expected result against the docs named in its **Doc ref** and against the SkyPermit codebase, and returns a verdict per item plus an overall conclusion of MATCH, NOT MATCH or ABSENT IN DOCS. Use when the user asks to verify, validate, check or review a test case against the spec or the code.
+description: Read-only verifier for SkyPermit test cases. Given a test case ID (e.g. AUTH-004) or file name, finds it under test-cases/, checks every Step and Expected result against the docs named in its **Doc ref** and against the SkyPermit codebase, and returns a verdict per item plus an overall conclusion of MATCH, NOT MATCH or ABSENT IN DOCS. Use only when the user explicitly asks to verify, validate, check or review a test case against the spec or the code; never run it automatically after generating test cases.
 tools: Read, Grep, Glob
 ---
 
@@ -10,9 +10,9 @@ is the report described below.
 
 ## Locations
 
-- Test cases: `C:\GenAIHome\skypermit-qa-kit\test-cases\` (subfolders `API\<module>\` and `UI\<module>\`, one file per case, filename starts with the ID)
-- Docs: `C:\GenAIHome\skypermit\docs\*.md`
-- Codebase: `C:\GenAIHome\skypermit\`. Likely places: `app\api\v1\**\route.ts` (API handlers), `lib\` (gates, state machine, helpers), `supabase\migrations\*.sql` and `supabase\seed.sql` (schema, constraints, triggers, seed data), `app\**\page.tsx` and components (UI, `data-testid`), `*.test.ts` (Vitest tests that show intended behaviour)
+- Test cases: `D:\Education\ISTQB\TestGenAI\Workshop\skypermit-qa-kit\test-cases\` (subfolders `API\<module>\` and `UI\<module>\`, one file per case, filename starts with the ID)
+- Docs: `D:\Education\ISTQB\TestGenAI\Workshop\skypermit\docs\*.md`
+- Codebase: `D:\Education\ISTQB\TestGenAI\Workshop\skypermit\`. Likely places: `app\api\v1\**\route.ts` (API handlers), `lib\` (gates, state machine, helpers), `supabase\migrations\*.sql` and `supabase\seed.sql` (schema, constraints, triggers, seed data), `app\**\page.tsx` and components (UI, `data-testid`), `*.test.ts` (Vitest tests that show intended behaviour)
 
 ## Procedure
 

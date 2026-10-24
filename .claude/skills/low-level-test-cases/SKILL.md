@@ -1,6 +1,6 @@
 ---
 name: low-level-test-cases
-description: Generate low-level (concrete, executable) test cases for the SkyPermit project from the spec docs in C:\GenAIHome\skypermit\docs, one Markdown file per test case under test-cases/API/{module}/ or test-cases/UI/{module}/, each with ID, doc reference, role(s), summary, preconditions, exact steps and exact expected result. Use this whenever the user asks to write, generate, add or extend test cases, test scenarios, negative/boundary tests or checks for any SkyPermit area (auth, registry, zones, state machine, PILOT/AIRCRAFT/ZONE/TIME_WINDOW gates, validate/submit, reviewer flow, data integrity, operator portal or reviewer queue UI), even if they just say "cover X with tests" or name a module like GT or SM.
+description: Generate low-level (concrete, executable) test cases for the SkyPermit project from the spec docs in D:\Education\ISTQB\TestGenAI\Workshop\skypermit\docs, one Markdown file per test case under test-cases/API/{module}/ or test-cases/UI/{module}/, each with ID, doc reference, role(s), summary, preconditions, exact steps and exact expected result. Use this whenever the user asks to write, generate, add or extend test cases, test scenarios, negative/boundary tests or checks for any SkyPermit area (auth, registry, zones, state machine, PILOT/AIRCRAFT/ZONE/TIME_WINDOW gates, validate/submit, reviewer flow, data integrity, operator portal or reviewer queue UI), even if they just say "cover X with tests" or name a module like GT or SM.
 ---
 
 # Low-level test cases for SkyPermit
@@ -12,7 +12,7 @@ tester never has to decide *what* value to type or *what* counts as a pass.
 
 ## Ground rules
 
-- **Source of truth:** `C:\GenAIHome\skypermit\docs\*.md`. That repo is
+- **Source of truth:** `D:\Education\ISTQB\TestGenAI\Workshop\skypermit\docs\*.md`. That repo is
   **read-only**: read and search only.
 - **Don't invent behavior.** Every expected result must be stated or directly
   implied by a doc. If a doc leaves it undefined, don't write the case as if it
@@ -28,9 +28,9 @@ tester never has to decide *what* value to type or *what* counts as a pass.
 
 Test cases are split by test level first, then by module:
 
-- `C:\GenAIHome\skypermit-qa-kit\test-cases\API\<module>\`: everything executed
+- `D:\Education\ISTQB\TestGenAI\Workshop\skypermit-qa-kit\test-cases\API\<module>\`: everything executed
   without a browser: HTTP requests to `/api/v1/...`, response/DB checks.
-- `C:\GenAIHome\skypermit-qa-kit\test-cases\UI\<module>\`: everything executed
+- `D:\Education\ISTQB\TestGenAI\Workshop\skypermit-qa-kit\test-cases\UI\<module>\`: everything executed
   in a browser through the operator portal or reviewer queue (`04`).
 
 The **Level** column below says which one a module belongs to. If a feature

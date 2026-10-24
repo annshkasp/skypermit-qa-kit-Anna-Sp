@@ -1,6 +1,6 @@
 ---
 name: one-page-test-plan
-description: Generate a one-page test plan for the SkyPermit project from the spec docs in C:\GenAIHome\skypermit\docs, covering scope, risks, what we test, definition of ready, definition of done and open questions, every item traced to a doc section. Use this whenever the user asks for a test plan, test strategy, QA plan, "what should we test", test scope, risk assessment or entry/exit criteria for SkyPermit or any of its areas (gates, state machine, API, frontend, auth), even if they don't say "one page" or "test plan" explicitly.
+description: Generate a one-page test plan for the SkyPermit project from the spec docs in D:\Education\ISTQB\TestGenAI\Workshop\skypermit\docs, covering scope, risks, what we test, definition of ready, definition of done and open questions, every item traced to a doc section. Use this whenever the user asks for a test plan, test strategy, QA plan, "what should we test", test scope, risk assessment or entry/exit criteria for SkyPermit or any of its areas (gates, state machine, API, frontend, auth), even if they don't say "one page" or "test plan" explicitly.
 ---
 
 # One-page test plan for SkyPermit
@@ -11,10 +11,10 @@ can start and finish. Every claim traces to a spec doc section.
 
 ## Ground rules
 
-- **Source of truth:** `C:\GenAIHome\skypermit\docs\*.md`. That repo is
+- **Source of truth:** `D:\Education\ISTQB\TestGenAI\Workshop\skypermit\docs\*.md`. That repo is
   **read-only**: read and search only, never write or run state-changing
   commands there.
-- **Output:** `C:\GenAIHome\skypermit-qa-kit\test-plan\`. Default filename
+- **Output:** `D:\Education\ISTQB\TestGenAI\Workshop\skypermit-qa-kit\test-plan\`. Default filename
   `test-plan.md`. For a plan scoped to one area, use `test-plan-<area>.md`
   (e.g. `test-plan-gates.md`). Write UTF-8 Markdown.
 - **Don't invent behavior.** If the docs don't say it, it isn't in the plan as
