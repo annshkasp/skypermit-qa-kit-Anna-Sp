@@ -45,18 +45,18 @@ Read these in order. Start with the app's own entry point, then the docs:
 - Reading, searching and listing files there is allowed.
 - All output goes into this repository (`skypermit-qa-kit`).
 
-`.claude/settings.json` enforces this: it grants read access to `../skypermit`, denies `Edit`/`Write`/`NotebookEdit` there, and denies `git -C` against it. Keep the paths in `settings.json`, the skills and the agent in sync with this file if the app moves.
+`.claude/settings.json` enforces this: it grants read access to `../skypermit`, denies `Edit` there (which also covers `Write` and `NotebookEdit`), and denies `git -C` against it. Keep the paths in `settings.json`, the skills and the agent in sync with this file if the app moves.
 
 ## How the work is done
 
 | Task | Use |
 |---|---|
 | Test plan, test strategy, scope, risks, entry/exit criteria | skill `one-page-test-plan` → `test-plan/` |
-| Write, add or extend test cases | skill `low-level-test-cases` → `test-cases/API/<module>/` or `test-cases/UI/<module>/` |
+| Design, write, add or extend E2E/UI test cases | skill `e2e-test-design` → `test-cases/UI/<module>/` |
 | Verify a test case against the docs and the code | agent `test-case-verifier` |
 
 - Run `test-case-verifier` **only when the user asks** to verify, validate or check a test case. Don't run it automatically after generating test cases.
-- The verifier checks one test case per run (give it the ID, e.g. `AUTH-004`) and is read-only. Its report goes into the reply, not into a file. For several cases, run one verifier per case.
+- The verifier checks one test case per run (give it the ID, e.g. `E2E-OP-004`) and is read-only. Its report goes into the reply, not into a file. For several cases, run one verifier per case.
 
 ## Directory structure
 
@@ -65,25 +65,38 @@ skypermit-qa-kit/
 ├── CLAUDE.md                  # this file
 ├── README.md                  # UTF-16 LE, see Repository notes
 ├── test-plan/                 # one-page test plans (skill: one-page-test-plan)
-├── test-cases/                # low-level test cases, one file per case (skill: low-level-test-cases)
-│   ├── API/<module>/          # executed without a browser: HTTP requests, response and DB checks
-│   └── UI/<module>/           # executed in a browser: operator portal, reviewer queue
+│   ├── test-plan.md
+│   └── test-plan-data-model.md
+├── test-cases/                # E2E test cases, one file per case (skill: e2e-test-design)
+│   └── UI/
+│       └── auth/              # operator registration (E2E-OP-001 … E2E-OP-007)
 └── .claude/
     ├── settings.json          # permissions: read-only access to ../skypermit, no web access
     ├── agents/
     │   └── test-case-verifier.md
     └── skills/
-        ├── low-level-test-cases/SKILL.md   # module map, naming, template (+ evals/)
+        ├── e2e-test-design/
+        │   ├── SKILL.md       # what to test: selectors, auth, state machine, gate pipeline
+        │   ├── templates.md   # test case fields and template
+        │   └── examples.md    # worked examples
         └── one-page-test-plan/SKILL.md
 ```
 
 ### Test case conventions
 
-- One Markdown file per case: `test-cases/<API|UI>/<module>/<ID>-<role-slug>-<summary-slug>.md`, for example `test-cases/API/auth/AUTH-001-operator-register-valid-operator.md`.
-- Title: `# <ID> · <Role(s)> · <Summary>`, for example `# AUTH-001 · Operator · Register operator with valid data creates profile at L1 and signs in`.
-- Fields, in order: ID, Doc ref, Role(s), Summary, Precondition (optional), Steps, Expected result.
-- IDs are `<PREFIX>-<NNN>`. Before writing, list the module folder and continue from the highest existing number. Never reuse or renumber an existing ID.
-- The module map (folder names and ID prefixes) is in `.claude/skills/low-level-test-cases/SKILL.md`.
+Source: `.claude/skills/e2e-test-design/` (`SKILL.md`, `templates.md`). If this section and the skill disagree, the skill governs.
+
+- **Location:** one Markdown file per case at `test-cases/UI/<module>/<ID>-<role-slug>-<summary-slug>.md`, for example `test-cases/UI/auth/E2E-OP-001-operator-register-with-all-fields.md`.
+- **ID:** `E2E-<portal>-<NNN>`. `OP` is the operator portal, `REV` the reviewer queue and `X` a cross-role flow. Numbering is per prefix across all of `test-cases/`, not per folder. Before writing, search `test-cases/` for the prefix and continue from the highest number. Never reuse or renumber an ID, even after a case is deleted.
+- **Title:** `# <ID>: <Title>`. The title states the scenario, not the mechanics (for example "Illegal re-submit of an UNDER_REVIEW request", not "click submit twice").
+- **Fields, in order:** Doc ref, Role(s), Preconditions, Steps, Expected result, Rationale.
+  - **Doc ref:** written as `skypermit/docs/<file>.md`, never `../skypermit/...`. Choose the anchor in this order: a `rule_reference` (for example `OH-1 §2.3`) for gate failures, then a numbered section, then a quoted heading.
+  - **Role(s):** Operator, Reviewer, or Operator → Reviewer, naming the handoff point. The two identities never share one flow: the operator uses a session cookie, the reviewer uses `X-Reviewer-Id`.
+  - **Preconditions:** the data and state that must exist first. Leave the field out entirely when nothing beyond a fresh page load is needed; don't write "None".
+  - **Steps:** numbered, each naming the `data-testid` it acts on and any input value. Bind only to `data-testid`, never to text or CSS. If a selector is missing, report it as a bug against `skypermit`.
+  - **Expected result:** both the visible UI outcome and the underlying state or gate result. Name the specific error (the gate and its `rule_reference`, or the `409` state-transition error), not just "shows an error".
+  - **Rationale:** the state transition, gate or documented edge case the case exists for.
+- **Scope:** E2E cases check that the UI reflects outcomes. They don't re-verify the API contract (status codes, error body shape).
 
 ## Repository notes
 

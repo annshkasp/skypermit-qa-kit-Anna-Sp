@@ -11,8 +11,6 @@
     ],
     "deny": [
       "Edit(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
-      "Write(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
-      "NotebookEdit(//d/Education/ISTQB/TestGenAI/Workshop/skypermit/**)",
       "Bash(git -C *skypermit)",
       "Bash(git -C *skypermit/*)",
       "Bash(git -C *skypermit\\*)",
